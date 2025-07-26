@@ -416,12 +416,12 @@ def reload_encodings():
 
 if __name__ == '__main__':
     print("Starting Face Recognition Service...")
-    print(f"Service will run on http://localhost:5001")
+    print(f"Service will run on http://localhost:5000")
     print(f"Loaded {len(face_service.known_face_encodings)} registered faces")
 
     app.run(
         host='0.0.0.0',
-        port=5001,
+        port=5000,
         debug=True,
         threaded=True
     )

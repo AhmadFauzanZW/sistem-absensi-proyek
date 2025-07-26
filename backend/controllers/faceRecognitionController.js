@@ -4,7 +4,7 @@ const pool = require('../config/db');
 const { logActivity } = require('./logController');
 
 // Face Recognition Service URL
-const FACE_SERVICE_URL = process.env.FACE_SERVICE_URL || 'http://localhost:5001';
+const FACE_SERVICE_URL = process.env.FACE_SERVICE_URL || 'http://localhost:5000';
 
 exports.registerWorkerFace = async (req, res) => {
     try {

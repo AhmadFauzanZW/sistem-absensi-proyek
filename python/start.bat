@@ -20,7 +20,7 @@ if errorlevel 1 (
     exit /b 1
 )
 
-echo Starting server on http://localhost:5001...
+echo Starting server on http://localhost:5000...
 echo Press Ctrl+C to stop the service
 echo.
 

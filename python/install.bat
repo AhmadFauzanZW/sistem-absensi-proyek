@@ -98,6 +98,6 @@ echo.
 echo ✅ Installation completed successfully!
 echo.
 echo To start the service, run: python face_recognition_server.py
-echo Service will be available at: http://localhost:5001
+echo Service will be available at: http://localhost:5000
 echo.
 pause

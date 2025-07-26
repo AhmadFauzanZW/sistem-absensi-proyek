@@ -245,7 +245,7 @@ exports.updateFaceRegistration = async (req, res) => {
         // Also call Python service to update face recognition model
         try {
             const axios = require('axios');
-            const pythonServiceUrl = 'http://localhost:5001';
+            const pythonServiceUrl = 'https://ai.absenproyek.biz.id' || 'http://localhost:5000';
 
             // Send base64 image data to Python service, not file path
             await axios.post(`${pythonServiceUrl}/register`, {
