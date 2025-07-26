@@ -9,6 +9,8 @@ const app = express();
 const corsOptions = {
     origin: [
         'https://absenproyek.biz.id',
+        'https://api.absenproyek.biz.id',
+        'https://ai.absenproyek.biz.id',
         'http://localhost:5173', // Keep for development
         'http://localhost:3000'
     ],
