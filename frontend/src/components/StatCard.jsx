@@ -34,13 +34,13 @@ const StatCard = ({ title, value, icon, change, unit = '' }) => {
 
 const StatCardSpv = ({ title, value, icon, color }) => {
     return (
-        <div className="bg-white p-4 rounded-lg space-y-2 shadow-md flex flex-col">
-            <div className={''}>
-                <p className="text-sm font-medium text-gray-500">{title}</p>
+        <div className="bg-white p-3 sm:p-4 rounded-lg shadow-md flex flex-col justify-between min-h-[100px] sm:min-h-[120px]">
+            <div className="mb-2">
+                <p className="text-xs sm:text-sm font-medium text-gray-500 truncate" title={title}>{title}</p>
             </div>
-            <div className={`flex justify-between items-end text-3xl rounded-full pb-1 ${color}`}>
-                <p className="text-2xl font-bold text-gray-800">{value}</p>
-                {icon}
+            <div className={`flex justify-between items-end ${color}`}>
+                <p className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-800">{value}</p>
+                <span className="text-lg sm:text-xl lg:text-2xl">{icon}</span>
             </div>
         </div>
     );

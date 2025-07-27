@@ -40,6 +40,9 @@ app.use('/api/manajemen', require('./routes/manajemenPekerja'));
 app.use('/api/laporan', require('./routes/laporan'));
 app.use('/api/face', require('./routes/faceRecognition'));
 // Add other routes here later
+app.get('/health', (req, res) => {
+    res.status(200).json({ status: 'healthy', timestamp: new Date().toISOString() });
+});
 
 // Add explicit preflight handling
 app.options('*', cors(corsOptions));

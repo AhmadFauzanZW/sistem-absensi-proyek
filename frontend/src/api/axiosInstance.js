@@ -2,9 +2,8 @@
 
 import axios from 'axios';
 
-// const API_BASE_URL = `http://localhost:5000/api`;
-const API_BASE_URL = `http://api.absenproyek.biz.id/api`;
-
+// const API_BASE_URL = `http://localhost:3000/api`;
+const API_BASE_URL = `https://api.absenproyek.biz.id/api`;
 const axiosInstance = axios.create({
     // baseURL: 'https://api.absenproyek.biz.id/api', // Use HTTPS for API
     baseURL: API_BASE_URL,

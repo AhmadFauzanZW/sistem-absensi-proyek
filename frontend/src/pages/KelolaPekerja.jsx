@@ -318,7 +318,7 @@ const KelolaPekerja = () => {
                                         onClick={() => handleOpenQrModal(w)}
                                         className="flex-1 bg-indigo-500 text-white text-xs px-3 py-2 rounded hover:bg-indigo-600 transition-colors"
                                     >
-                                        📱 {w.kode_qr ? 'Update' : 'Buat QR'}
+                                        📱 {w.kode_qr ? 'Update QR' : 'Buat QR'}
                                     </button>
                                     <button
                                         onClick={() => handleStatusChange(w.id_pengguna, w.status_pengguna)}

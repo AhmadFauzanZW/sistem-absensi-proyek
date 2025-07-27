@@ -79,83 +79,116 @@ const PengajuanIzin = () => {
 
     return (
         <Layout>
-            <h1 className="text-3xl font-bold text-gray-800 mb-6">Buat Pengajuan Izin</h1>
-            <div className="bg-white p-6 rounded-lg shadow-md max-w-lg mx-auto">
-                <form onSubmit={handleSubmit} encType="multipart/form-data" className="space-y-4">
-                    {/* Jenis Izin */}
-                    <div>
-                        <label className="block text-sm font-medium mb-1">Jenis Izin</label>
-                        <select
-                            name="jenis_izin"
-                            value={formData.jenis_izin}
-                            onChange={handleChange}
-                            className="mt-1 p-2 cursor-pointer block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                        >
-                            <option>Sakit</option>
-                            <option>Cuti</option>
-                            <option>Izin Penting</option>
-                        </select>
-                    </div>
+            <div className="max-w-2xl mx-auto">
+                {/* Header - Mobile Optimized */}
+                <div className="mb-6">
+                    <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 text-center sm:text-left">Buat Pengajuan Izin</h1>
+                </div>
 
-                    {/* Rentang Tanggal */}
-                    <div>
-                        <label className="block text-sm font-medium mb-1">Rentang Tanggal</label>
-                        <div className="flex gap-4">
-                            <input
-                                type="date"
-                                name="tanggal_mulai"
-                                value={formData.tanggal_mulai}
+                {/* Form Container */}
+                <div className="bg-white p-4 sm:p-6 rounded-lg shadow-md">
+                    <form onSubmit={handleSubmit} encType="multipart/form-data" className="space-y-6">
+                        {/* Jenis Izin */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Jenis Izin</label>
+                            <select
+                                name="jenis_izin"
+                                value={formData.jenis_izin}
                                 onChange={handleChange}
-                                required
-                                className="mt-1 p-2 cursor-pointer block w-full border-gray-300 rounded-md shadow-sm"
-                            />
-                            <input
-                                type="date"
-                                name="tanggal_selesai"
-                                value={formData.tanggal_selesai}
-                                onChange={handleChange}
-                                required
-                                className="mt-1 p-2 cursor-pointer block w-full border-gray-300 rounded-md shadow-sm"
-                            />
+                                className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm bg-white"
+                            >
+                                <option>Sakit</option>
+                                <option>Cuti</option>
+                                <option>Izin Penting</option>
+                            </select>
                         </div>
-                    </div>
 
-                    {/* Keterangan */}
-                    <div>
-                        <label className="block text-sm font-medium mb-1">Keterangan</label>
-                        <textarea
-                            name="keterangan"
-                            value={formData.keterangan}
-                            onChange={handleChange}
-                            rows="4"
-                            required
-                            className="mt-1 p-2 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                        ></textarea>
-                    </div>
+                        {/* Rentang Tanggal */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Rentang Tanggal</label>
+                            <div className="space-y-3 sm:space-y-0 sm:grid sm:grid-cols-2 sm:gap-4">
+                                <div>
+                                    <label className="block text-xs text-gray-500 mb-1 sm:sr-only">Tanggal Mulai</label>
+                                    <input
+                                        type="date"
+                                        name="tanggal_mulai"
+                                        value={formData.tanggal_mulai}
+                                        onChange={handleChange}
+                                        required
+                                        placeholder="Tanggal mulai"
+                                        className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-xs text-gray-500 mb-1 sm:sr-only">Tanggal Selesai</label>
+                                    <input
+                                        type="date"
+                                        name="tanggal_selesai"
+                                        value={formData.tanggal_selesai}
+                                        onChange={handleChange}
+                                        required
+                                        placeholder="Tanggal selesai"
+                                        className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
+                                    />
+                                </div>
+                            </div>
+                        </div>
 
-                    {/* Lampiran Bukti */}
-                    <div className={'cursor-pointer'}>
-                        <label className="block text-sm font-medium mb-1">Lampiran Bukti (Opsional)</label>
-                        <input
-                            type="file"
-                            name="bukti"
-                            onChange={handleFileChange}
-                            className="mt-1 cursor-pointer block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                        />
-                    </div>
+                        {/* Keterangan */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Keterangan</label>
+                            <textarea
+                                name="keterangan"
+                                value={formData.keterangan}
+                                onChange={handleChange}
+                                rows="4"
+                                required
+                                placeholder="Jelaskan alasan izin Anda..."
+                                className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm resize-none"
+                            ></textarea>
+                        </div>
 
-                    {/* Pesan feedback */}
-                    {message && <p className="text-green-600">{message}</p>}
-                    {error && <p className="text-red-600">{error}</p>}
+                        {/* Lampiran Bukti */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Lampiran Bukti (Opsional)</label>
+                            <div className="relative">
+                                <input
+                                    type="file"
+                                    name="bukti"
+                                    onChange={handleFileChange}
+                                    accept="image/*,.pdf,.doc,.docx"
+                                    className="w-full p-3 border border-gray-300 rounded-lg shadow-sm text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer"
+                                />
+                                {file && (
+                                    <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded-lg">
+                                        <p className="text-sm text-green-700">📎 {file.name}</p>
+                                    </div>
+                                )}
+                            </div>
+                            <p className="mt-1 text-xs text-gray-500">Format yang didukung: JPG, PNG, PDF, DOC (Max: 5MB)</p>
+                        </div>
 
-                    {/* Tombol Submit */}
-                    <button
-                        type="submit"
-                        className="w-full cursor-pointer bg-blue-600 text-white font-semibold py-2 px-4 rounded hover:bg-blue-700 transition duration-200"
-                    >
-                        Kirim Pengajuan
-                    </button>
-                </form>
+                        {/* Pesan feedback */}
+                        {message && (
+                            <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+                                <p className="text-green-700 text-sm">✅ {message}</p>
+                            </div>
+                        )}
+                        {error && (
+                            <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                                <p className="text-red-700 text-sm">❌ {error}</p>
+                            </div>
+                        )}
+
+                        {/* Tombol Submit */}
+                        <button
+                            type="submit"
+                            className="w-full bg-blue-600 text-white font-semibold py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors duration-200 text-sm sm:text-base"
+                        >
+                            Kirim Pengajuan
+                        </button>
+                    </form>
+                </div>
             </div>
         </Layout>
     );

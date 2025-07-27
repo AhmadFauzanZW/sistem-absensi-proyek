@@ -10,12 +10,13 @@ export const getStatusBadge = (status) => {
         case 'Lembur': return 'bg-indigo-100 text-indigo-800';
         case 'Pulang Cepat': return 'bg-orange-100 text-orange-800';
         case 'Absen': return 'bg-red-100 text-red-800';
+        case 'Belum Hadir': return 'bg-gray-100 text-gray-600';
         case 'N/A': return 'bg-gray-100 text-gray-500';
         default:
             if (status.includes('Hadir')) return 'bg-green-100 text-green-800';
             if (status.includes('Telat')) return 'bg-yellow-100 text-yellow-800';
             if (status.includes('Pulang')) return 'bg-indigo-100 text-indigo-800';
-            if (status.includes('Belum Hadir')) return 'bg-red-100 text-red-800';
+            if (status.includes('Belum Hadir')) return 'bg-gray-100 text-gray-600';
             return 'bg-gray-100 text-gray-800';
     }
 };

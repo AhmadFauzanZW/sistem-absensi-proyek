@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ZanderionWtcX04
+      MYSQL_DATABASE: absensi
+      MYSQL_USER: root
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  backend:
+    build: ./backend
+    container_name: backend
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: root
+      DB_PASSWORD: ZanderionWtcX04
+      DB_NAME: absensi
+      FACE_SERVICE_URL: https://ai.absenproyek.biz.id
+      TZ: Asia/Jakarta
+      JWT_SECRET: your_super_secret_key_for_jwt
+    depends_on:
+      - mysql
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    ports:
+      - "3001:80"
+    environment:
+      VITE_API_URL: https://api.absenproyek.biz.id
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  ai-service:
+    build: ./python
+    container_name: ai-service
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./python/face_encodings.pkl:/app/face_encodings.pkl
+      - ./python/uploads:/app/uploads
+    networks:
+      - app-network
+    restart: unless-stopped
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  mysql_data:

@@ -45,21 +45,23 @@ const HalamanAbsensi = () => {
 
     return (
         <Layout>
-            {/* Header Section */}
-            <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-                <h1 className="text-3xl font-bold text-gray-800">Manajemen Absensi Harian</h1>
-                <div className="flex gap-2 sm:gap-4 w-full md:w-auto">
+            {/* Header Section - Mobile Optimized */}
+            <div className="mb-6">
+                <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-4">Manajemen Absensi Harian</h1>
+                
+                {/* Action Buttons - Mobile First */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <button
                         onClick={() => openModal('face', null, 'smart')}
-                        className="flex-1 bg-teal-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-teal-700 transition-colors"
+                        className="w-full bg-teal-600 text-white px-4 py-3 rounded-lg font-semibold hover:bg-teal-700 transition-colors text-sm sm:text-base"
                     >
-                        Absensi Wajah
+                        🤳 Absensi Wajah
                     </button>
                     <button
                         onClick={() => openModal('qr', null, 'smart')}
-                        className="flex-1 bg-sky-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-sky-700 transition-colors"
+                        className="w-full bg-sky-600 text-white px-4 py-3 rounded-lg font-semibold hover:bg-sky-700 transition-colors text-sm sm:text-base"
                     >
-                        Pindai QR Code
+                        📱 Pindai QR Code
                     </button>
                 </div>
             </div>
