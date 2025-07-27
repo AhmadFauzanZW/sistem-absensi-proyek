@@ -12,7 +12,7 @@ const corsOptions = {
         'https://api.absenproyek.biz.id',
         'https://ai.absenproyek.biz.id',
         'http://localhost:5173', // Keep for development
-        'http://localhost:3000'
+        'http://localhost:3001'
     ],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
