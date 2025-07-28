@@ -6,6 +6,12 @@ const { logActivity } = require('./logController');
 // Face Recognition Service URL
 const FACE_SERVICE_URL = process.env.FACE_SERVICE_URL || 'http://localhost:5000';
 
+// Define activity types constants
+const ACTIVITY_TYPES = {
+    FACE_REGISTRATION: 'FACE_REGISTRATION',
+    REGISTER_FACE_ADMIN: 'REGISTER_FACE_ADMIN'
+};
+
 exports.registerWorkerFace = async (req, res) => {
     try {
         const { id_pekerja, image_base64 } = req.body;

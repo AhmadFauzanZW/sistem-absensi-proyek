@@ -20,9 +20,6 @@ const corsOptions = {
     optionsSuccessStatus: 200
 };
 
-// Scheduler
-require('./services/cronService');
-
 // Middleware
 app.use(cors(corsOptions));
 app.use(express.json()); // To parse JSON bodies

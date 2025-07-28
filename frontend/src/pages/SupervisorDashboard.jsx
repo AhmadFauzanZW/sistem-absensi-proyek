@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axiosInstance from '../api/axiosInstance'; // Tetap gunakan axiosInstance
 import Layout from '../components/Layout';
+import Pagination from '../components/Pagination';
 import { StatCardSpv } from '../components/StatCard';
 
 import DatePicker from 'react-datepicker';
@@ -146,17 +147,17 @@ const SupervisorDashboard = () => {
         <Layout>
             {/* Header Section - Mobile Optimized */}
             <div className="mb-6">
-                {/* Button positioned at top for mobile */}
-                <div className="flex justify-end mb-4">
-                    <Link to="/supervisor/absensi" className="w-full sm:w-auto bg-green-600 text-white px-4 py-3 rounded-lg font-bold hover:bg-green-700 shadow-lg text-center text-sm">
-                        Mulai Sesi Absensi
-                    </Link>
-                </div>
-                
                 {/* Title Section */}
                 <div>
                     <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">Dashboard Supervisor</h1>
                     <p className="text-gray-500 mt-1 text-sm sm:text-base">Menampilkan data untuk: <span className="font-semibold text-blue-600">{displayPeriod}</span></p>
+                </div>
+
+                {/* Button positioned at bottom for mobile */}
+                <div className="flex justify-end mt-4">
+                    <Link to="/supervisor/absensi" className="w-full sm:w-auto bg-green-600 text-white px-4 py-3 rounded-lg font-bold hover:bg-green-700 shadow-lg text-center text-sm">
+                        Mulai Sesi Absensi
+                    </Link>
                 </div>
             </div>
 
@@ -361,25 +362,12 @@ const SupervisorDashboard = () => {
 
                             {/* Pagination - Mobile Optimized */}
                             {pagination.totalPages > 1 && (
-                                <div className="flex flex-col sm:flex-row justify-between items-center mt-6 pt-4 border-t border-gray-200 gap-3">
-                                    <button 
-                                        onClick={() => handlePageChange(pagination.currentPage - 1)} 
-                                        disabled={pagination.currentPage === 1} 
-                                        className="w-full sm:w-auto px-4 py-2 bg-gray-200 text-gray-700 rounded-lg disabled:opacity-50 hover:bg-gray-300 transition-colors text-sm font-medium"
-                                    >
-                                        Sebelumnya
-                                    </button>
-                                    <span className="text-sm text-gray-600 order-first sm:order-none">
-                                        Halaman {pagination.currentPage} dari {pagination.totalPages}
-                                    </span>
-                                    <button 
-                                        onClick={() => handlePageChange(pagination.currentPage + 1)} 
-                                        disabled={pagination.currentPage === pagination.totalPages} 
-                                        className="w-full sm:w-auto px-4 py-2 bg-gray-200 text-gray-700 rounded-lg disabled:opacity-50 hover:bg-gray-300 transition-colors text-sm font-medium"
-                                    >
-                                        Berikutnya
-                                    </button>
-                                </div>
+                                <Pagination
+                                    currentPage={pagination.currentPage}
+                                    totalPages={pagination.totalPages}
+                                    onPageChange={handlePageChange}
+                                    className="mt-6 pt-4 border-t border-gray-200"
+                                />
                             )}
                         </>
                     )}

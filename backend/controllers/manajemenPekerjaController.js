@@ -171,12 +171,23 @@ exports.getMetaData = async (req, res) => {
 
 // 6. Generate QR Code untuk pekerja
 exports.generateQRCode = async (req, res) => {
-    const { id_pekerja } = req.params;
+    const { id_pekerja } = req.params; // Reverted back to id_pekerja
     const { qr_code } = req.body;
 
     try {
+        console.log('Updating QR code for worker:', id_pekerja, 'with code:', qr_code);
+        
         // Update QR code untuk pekerja
-        await pool.query('UPDATE pekerja SET kode_qr = ? WHERE id_pekerja = ?', [qr_code, id_pekerja]);
+        const [result] = await pool.query('UPDATE pekerja SET kode_qr = ? WHERE id_pekerja = ?', [qr_code, id_pekerja]);
+        
+        console.log('Update result:', result);
+        
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ 
+                success: false, 
+                message: "Pekerja tidak ditemukan" 
+            });
+        }
         
         res.json({ 
             success: true, 
@@ -196,7 +207,7 @@ exports.generateQRCode = async (req, res) => {
 // server/controllers/manajemenPekerjaController.js
 
 exports.updateFaceRegistration = async (req, res) => {
-    const { id_pekerja } = req.params;
+    const { id_pekerja } = req.params; // Reverted back to id_pekerja
     const { nama_pengguna, face_image } = req.body;
 
     try {
@@ -232,7 +243,7 @@ exports.updateFaceRegistration = async (req, res) => {
         // Update database with new face image path
         const [result] = await pool.query(
             'UPDATE pekerja SET foto_profil_path = ?, face_registered = 1 WHERE id_pekerja = ?',
-            [filename, id_pekerja]
+            [filename, id_pekerja] // Reverted back to id_pekerja
         );
 
         if (result.affectedRows === 0) {
@@ -249,7 +260,7 @@ exports.updateFaceRegistration = async (req, res) => {
 
             // Send base64 image data to Python service, not file path
             await axios.post(`${pythonServiceUrl}/register`, {
-                worker_id: id_pekerja,
+                worker_id: id_pekerja, // Reverted back to id_pekerja
                 worker_name: nama_pengguna,
                 image: face_image // Send the original base64 image
             });

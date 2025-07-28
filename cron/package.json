@@ -1,0 +1,29 @@
+{
+  "name": "absensi-cron-service",
+  "version": "1.0.0",
+  "description": "Cron service untuk sistem absensi proyek",
+  "main": "cron-server.js",
+  "scripts": {
+    "start": "node cron-server.js",
+    "dev": "nodemon cron-server.js",
+    "docker:build": "docker build -t absensi-cron .",
+    "docker:run": "docker run -d --name absensi-cron-container absensi-cron"
+  },
+  "dependencies": {
+    "node-cron": "^3.0.3",
+    "mysql2": "^3.6.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  },
+  "keywords": [
+    "cron",
+    "scheduler",
+    "absensi",
+    "docker"
+  ],
+  "author": "Your Name",
+  "license": "ISC"
+}

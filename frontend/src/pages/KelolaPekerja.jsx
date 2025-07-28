@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import Layout from '../components/Layout';
 import axiosInstance from '../api/axiosInstance';
+import Pagination from '../components/Pagination';
 import PekerjaFormModal from '../components/PekerjaFormModal';
 import FaceRegistrationModal from '../components/FaceRegistrationModal';
 import QrGenerationModal from '../components/QrGenerationModal';
@@ -149,6 +150,8 @@ const KelolaPekerja = () => {
     // Generate QR Code for worker
     const handleGenerateQR = async (workerId, qrCodeValue) => {
         const token = localStorage.getItem('token');
+        console.log('Generating QR for worker:', workerId, 'with value:', qrCodeValue);
+        
         try {
             const response = await axiosInstance.post(`/manajemen/pekerja/${workerId}/generate-qr`, {
                 qr_code: qrCodeValue
@@ -156,9 +159,11 @@ const KelolaPekerja = () => {
                 headers: { Authorization: `Bearer ${token}` }
             });
             
+            console.log('QR Generation response:', response.data);
+            
             if (response.data.success) {
                 alert('QR Code berhasil disimpan!');
-                fetchData(); // Refresh data
+                await fetchData(); // Refresh data dengan await
                 handleCloseQrModal();
             }
         } catch (error) {
@@ -171,14 +176,14 @@ const KelolaPekerja = () => {
     const handleFaceRegistration = async (faceData) => {
         const token = localStorage.getItem('token');
         try {
-            // Use the correct endpoint that matches your backend routes
-            const response = await axiosInstance.patch(`/manajemen/pekerja/${selectedWorkerForFace.id_pekerja}/face-registration`, {
-                nama_pengguna: selectedWorkerForFace.nama_pengguna,
-                face_image: faceData.faceImage // Base64 image
+            // Gunakan endpoint yang benar sesuai dengan backend routes
+            const response = await axiosInstance.post('/face/register', {
+                id_pekerja: selectedWorkerForFace.id_pekerja,
+                image_base64: faceData.faceImage // Base64 image
             }, {
                 headers: { Authorization: `Bearer ${token}` }
             });
-
+    
             if (response.data.success) {
                 alert('Wajah berhasil didaftarkan!');
                 fetchData(); // Refresh data
@@ -435,29 +440,18 @@ const KelolaPekerja = () => {
 
                 {/* Pagination - Better mobile layout */}
                 {!loading && pagination.totalPages > 0 && (
-                    <div className="flex flex-col sm:flex-row justify-between items-center mt-4 pt-4 border-t gap-3">
-                        <span className="text-xs sm:text-sm text-gray-600 order-first sm:order-none">
-                            Menampilkan {workers.length} dari {pagination.totalItems} pekerja
-                        </span>
-                        <div className="flex items-center gap-2">
-                            <button
-                                onClick={() => setQueryParams(prev => ({...prev, page: prev.page - 1}))}
-                                disabled={pagination.currentPage === 1}
-                                className="px-3 py-2 bg-gray-200 rounded cursor-pointer disabled:opacity-50 hover:bg-gray-300 text-sm font-medium"
-                            >
-                                Sebelumnya
-                            </button>
-                            <span className="text-xs sm:text-sm px-2">
-                                Hal {pagination.currentPage} dari {pagination.totalPages}
+                    <div className="mt-4 pt-4 border-t">
+                        <div className="flex flex-col sm:flex-row justify-between items-center mb-3 gap-3">
+                            <span className="text-xs sm:text-sm text-gray-600 order-first sm:order-none">
+                                Menampilkan {workers.length} dari {pagination.totalItems} pekerja
                             </span>
-                            <button
-                                onClick={() => setQueryParams(prev => ({...prev, page: prev.page + 1}))}
-                                disabled={pagination.currentPage === pagination.totalPages}
-                                className="px-3 py-2 bg-gray-200 rounded cursor-pointer disabled:opacity-50 hover:bg-gray-300 text-sm font-medium"
-                            >
-                                Berikutnya
-                            </button>
                         </div>
+                        <Pagination
+                            currentPage={pagination.currentPage}
+                            totalPages={pagination.totalPages}
+                            onPageChange={(page) => setQueryParams(prev => ({...prev, page}))}
+                            showInfo={false}
+                        />
                     </div>
                 )}
             </div>

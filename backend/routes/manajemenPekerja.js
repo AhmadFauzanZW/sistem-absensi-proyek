@@ -10,10 +10,10 @@ router.use(protect, authorize('Manager', 'Direktur'));
 
 router.get('/pekerja', getAllWorkers);
 router.post('/pekerja', addWorker);
-router.put('/pekerja/:id', updateWorker);
+router.put('/pekerja/:id_pekerja', updateWorker);
 router.patch('/pekerja/status/:userId', updateWorkerStatus);
-router.post('/pekerja/:id/generate-qr', generateQRCode);
-router.patch('/pekerja/:id/face-registration', updateFaceRegistration);
+router.post('/pekerja/:id_pekerja/generate-qr', generateQRCode);
+router.patch('/pekerja/:id_pekerja/face-registration', updateFaceRegistration);
 router.get('/meta-data', getMetaData);
 
 module.exports = router;

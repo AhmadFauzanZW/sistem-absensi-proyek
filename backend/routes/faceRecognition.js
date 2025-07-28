@@ -7,11 +7,11 @@ const { protect, authorize } = require('../middleware/authMiddleware');
 // Health check for face recognition service
 router.get('/health', protect, authorize('Supervisor'), healthCheck);
 
-// Register worker face
-router.post('/register', protect, authorize('Supervisor'), registerWorkerFace);
+// Register worker face - allow Supervisor, Manager, and Direktur
+router.post('/register', protect, authorize('Supervisor', 'Manager', 'Direktur'), registerWorkerFace);
 
-// Register face from admin/manager interface
-router.post('/register', protect, authorize('Manager', 'Direktur'), registerFaceFromAdmin);
+// Register face from admin/manager interface (alternative endpoint)
+router.post('/register-admin', protect, authorize('Manager', 'Direktur'), registerFaceFromAdmin);
 
 // Recognize face
 router.post('/recognize', protect, authorize('Supervisor'), recognizeFace);

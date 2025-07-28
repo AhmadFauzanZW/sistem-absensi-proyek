@@ -6,13 +6,13 @@ const { id } = require('date-fns/locale');
 // Fungsi getDisplayPeriod dan sendEmptyResponse
 const getDisplayPeriod = (filter, date) => {
     const d = new Date(date);
-    if (filter === 'hari') return format(d, 'eeee, dd MMMM yy', { locale: id });
+    if (filter === 'hari') return format(d, 'eeee, dd MMMM yyyy', { locale: id });
     if (filter === 'minggu') {
         const awal = format(startOfWeek(d, { weekStartsOn: 1 }), 'dd MMMM');
-        const akhir = format(endOfWeek(d, { weekStartsOn: 1 }), 'dd MMMM yy');
+        const akhir = format(endOfWeek(d, { weekStartsOn: 1 }), 'dd MMMM yyyy');
         return `Minggu, ${awal} - ${akhir}`;
     }
-    if (filter === 'bulan') return format(d, 'MMMM yy', { locale: id });
+    if (filter === 'bulan') return format(d, 'MMMM yyyy', { locale: id });
     return '';
 };
 

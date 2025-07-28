@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
 import axiosInstance from "../api/axiosInstance.js";
 import StatCard from '../components/StatCard';
+import Pagination from '../components/Pagination';
 import { Bar } from 'react-chartjs-2';
 import DatePicker from 'react-datepicker';
 import { id as indonesianLocale } from 'date-fns/locale';
@@ -177,7 +178,8 @@ const DirekturDashboard = () => {
                 )}
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <div className="grid grid-cols-1 gap-6 mb-8">
+                {/* Biaya Gaji per Proyek Chart */}
                 <div className="bg-white p-6 rounded-lg shadow-md">
                     <h2 className="text-xl font-semibold mb-4">Biaya Gaji per Proyek (Bulan Dipilih)</h2>
                     <div className="h-80">
@@ -185,10 +187,10 @@ const DirekturDashboard = () => {
                     </div>
                 </div>
 
+                {/* Log Aktivitas */}
                 <div className="bg-white p-6 rounded-lg shadow-md">
                     <h2 className="text-xl font-semibold mb-4">Log Aktivitas</h2>
 
-                    {/* Log Aktivitas */}
                     <div className="mb-6">
                         <div className="overflow-x-auto">
                             <table className="w-full text-left text-sm">
@@ -237,27 +239,12 @@ const DirekturDashboard = () => {
                     </div>
 
                     {logs.length > 0 && (
-                      <div className="flex justify-between items-center mt-4">
-                          <span className="text-sm text-gray-600">
-                              Halaman {logPagination.page} dari {logPagination.totalPages}
-                          </span>
-                          <div className="flex space-x-2">
-                              <button
-                                  onClick={() => fetchLogData(logPagination.page - 1)}
-                                  disabled={logPagination.page <= 1}
-                                  className="px-3 py-1 bg-gray-200 text-gray-700 rounded disabled:opacity-50 disabled:cursor-not-allowed"
-                              >
-                                  Sebelumnya
-                              </button>
-                              <button
-                                  onClick={() => fetchLogData(logPagination.page + 1)}
-                                  disabled={logPagination.page >= logPagination.totalPages}
-                                  className="px-3 py-1 bg-gray-200 text-gray-700 rounded disabled:opacity-50 disabled:cursor-not-allowed"
-                              >
-                                  Berikutnya
-                              </button>
-                          </div>
-                      </div>
+                        <Pagination
+                            currentPage={logPagination.page}
+                            totalPages={logPagination.totalPages}
+                            onPageChange={fetchLogData}
+                            className="mt-4"
+                        />
                     )}
                 </div>
             </div>
