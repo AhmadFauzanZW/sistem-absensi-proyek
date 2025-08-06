@@ -2,8 +2,8 @@
 logs/
 *.log
 
-# Environment files
-.env
+.env.example
+.env.production
 
 # Node modules
 node_modules/

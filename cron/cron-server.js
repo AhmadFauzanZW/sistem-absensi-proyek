@@ -1,203 +1,177 @@
+// cron-service/index.js
+// =================================================================
+// IMPORTS
+// =================================================================
 const cron = require('node-cron');
 const express = require('express');
-const pool = require('./config/db');
+const pool = require('./config/db'); // Pastikan path ini benar
 require('dotenv').config();
 
-// Initialize Express app for health checks
+// =================================================================
+// KONFIGURASI APLIKASI
+// =================================================================
 const app = express();
 const PORT = process.env.CRON_PORT || 3002;
 
-// Middleware
-app.use(express.json());
-
-// Global state tracking
-let cronState = {
+// =================================================================
+// STATE MANAGEMENT & HELPERS
+// =================================================================
+// Objek untuk melacak status cron job secara global
+const cronState = {
     isRunning: false,
     lastRun: null,
-    nextRun: null,
-    lastResult: null,
-    runCount: 0
+    lastResult: { success: null, message: 'Belum pernah berjalan' },
+    runCount: 0,
+    schedule: '0 17 * * *' // Jadwal diset untuk jam 5 sore setiap hari
 };
 
-const logWithTimestamp = (message, level = 'INFO') => {
+/**
+ * Fungsi helper untuk logging dengan timestamp.
+ * @param {string} message - Pesan log.
+ * @param {'INFO' | 'ERROR' | 'WARN'} level - Level log.
+ */
+const log = (message, level = 'INFO') => {
     const timestamp = new Date().toISOString();
     console.log(`[${timestamp}] [${level}] ${message}`);
 };
 
+// =================================================================
+// LOGIKA UTAMA CRON JOB
+// =================================================================
+/**
+ * Fungsi utama untuk menandai pekerja yang tidak hadir sebagai 'Absen'.
+ * Didesain untuk menjadi idempotent (aman dijalankan berkali-kali).
+ */
 const tandaiPekerjaAbsen = async () => {
+    // Mencegah job berjalan jika sudah ada instance lain yang berjalan
+    if (cronState.isRunning) {
+        log('Job sebelumnya masih berjalan, melewati eksekusi kali ini.', 'WARN');
+        return;
+    }
+
+    // Update state
     cronState.isRunning = true;
     cronState.lastRun = new Date();
     cronState.runCount++;
     
-    logWithTimestamp('Menjalankan tugas penjadwalan: Menandai pekerja absen...');
+    log('🚀 Memulai tugas penjadwalan: Menandai pekerja absen...');
     const today = new Date().toISOString().slice(0, 10);
 
     try {
-        // Get all active workers
+        // 1. Dapatkan semua ID pekerja yang statusnya 'Aktif'
         const [activeWorkers] = await pool.query(
-            `SELECT pk.id_pekerja, p.nama_pengguna FROM pekerja pk
+            `SELECT pk.id_pekerja FROM pekerja pk
              JOIN pengguna p ON pk.id_pengguna = p.id_pengguna 
              WHERE p.status_pengguna = 'Aktif'`
         );
         const allWorkerIds = activeWorkers.map(p => p.id_pekerja);
-        logWithTimestamp(`Ditemukan ${allWorkerIds.length} pekerja aktif`);
+        log(`📋 Ditemukan ${allWorkerIds.length} pekerja aktif.`);
 
-        // Get workers who have attendance records today
+        // 2. Dapatkan semua ID pekerja yang sudah punya catatan kehadiran hari ini
         const [attendedWorkers] = await pool.query(
             `SELECT DISTINCT id_pekerja FROM catatan_kehadiran WHERE DATE(waktu_clock_in) = ?`,
             [today]
         );
         const attendedWorkerIds = attendedWorkers.map(p => p.id_pekerja);
-        logWithTimestamp(`${attendedWorkerIds.length} pekerja sudah memiliki catatan kehadiran`);
+        log(`✅ ${attendedWorkerIds.length} pekerja sudah memiliki catatan kehadiran hari ini.`);
 
-        // Find absent workers
+        // 3. Tentukan pekerja yang absen (ada di daftar aktif tapi tidak ada di daftar hadir)
         const absentWorkerIds = allWorkerIds.filter(id => !attendedWorkerIds.includes(id));
 
         if (absentWorkerIds.length > 0) {
-            logWithTimestamp(`Menemukan ${absentWorkerIds.length} pekerja absen. Memasukkan ke database...`);
+            log(`🔍 Menemukan ${absentWorkerIds.length} pekerja absen. Memasukkan ke database...`);
 
-            // Insert absent records in batches for better performance
-            const batchSize = 50;
-            for (let i = 0; i < absentWorkerIds.length; i += batchSize) {
-                const batch = absentWorkerIds.slice(i, i + batchSize);
-                
-                const insertPromises = batch.map(id_pekerja => {
-                    const query = `
-                        INSERT INTO catatan_kehadiran (id_pekerja, waktu_clock_in, status_kehadiran, metode_verifikasi)
-                        VALUES (?, ?, 'Absen', 'Sistem')
-                    `;
-                    return pool.query(query, [id_pekerja, `${today} 23:00:00`]);
-                });
+            // 4. Masukkan data 'Absen' untuk setiap pekerja yang tidak hadir
+            const insertPromises = absentWorkerIds.map(id_pekerja => {
+                const query = `
+                    INSERT INTO catatan_kehadiran (id_pekerja, waktu_clock_in, status_kehadiran, metode_verifikasi)
+                    VALUES (?, ?, 'Absen', 'Sistem')
+                `;
+                // Set waktu clock_in ke jam 11 malam pada hari ini
+                return pool.query(query, [id_pekerja, `${today} 23:00:00`]);
+            });
 
-                await Promise.all(insertPromises);
-                logWithTimestamp(`Batch ${Math.floor(i/batchSize) + 1}: ${batch.length} pekerja diproses`);
-            }
+            await Promise.all(insertPromises);
+            
+            const successMessage = `Berhasil menandai ${absentWorkerIds.length} pekerja sebagai absen.`;
+            log(`✔️  ${successMessage}`);
+            cronState.lastResult = { success: true, message: successMessage, processedCount: absentWorkerIds.length };
 
-            cronState.lastResult = {
-                success: true,
-                message: `Berhasil menandai ${absentWorkerIds.length} pekerja absen`,
-                processedCount: absentWorkerIds.length
-            };
-            logWithTimestamp(`✅ Berhasil menandai ${absentWorkerIds.length} pekerja absen.`);
         } else {
-            cronState.lastResult = {
-                success: true,
-                message: 'Tidak ada pekerja yang absen hari ini',
-                processedCount: 0
-            };
-            logWithTimestamp(`✅ Tidak ada pekerja yang absen hari ini.`);
+            const noAbsentMessage = 'Tidak ada pekerja yang absen hari ini.';
+            log(`✔️  ${noAbsentMessage}`);
+            cronState.lastResult = { success: true, message: noAbsentMessage, processedCount: 0 };
         }
     } catch (error) {
-        cronState.lastResult = {
-            success: false,
-            message: error.message,
-            processedCount: 0
-        };
-        logWithTimestamp(`❌ Gagal menjalankan tugas penjadwalan absen: ${error.message}`, 'ERROR');
-        console.error(error);
+        const errorMessage = `Gagal menjalankan tugas penjadwalan: ${error.message}`;
+        log(errorMessage, 'ERROR');
+        console.error(error); // Log stack trace untuk detail
+        cronState.lastResult = { success: false, message: errorMessage };
     } finally {
+        // Pastikan state isRunning selalu direset, bahkan jika terjadi error
         cronState.isRunning = false;
+        log('🏁 Tugas penjadwalan selesai.');
     }
 };
 
-// Manual trigger for testing (POST /trigger)
-const triggerManual = async (req, res) => {
-    if (cronState.isRunning) {
-        return res.status(423).json({
-            success: false,
-            message: 'Cron job sedang berjalan',
-            state: cronState
-        });
-    }
+// =================================================================
+// API ENDPOINTS (untuk observabilitas & kontrol)
+// =================================================================
+// Endpoint untuk memeriksa apakah layanan hidup
+app.get('/health', (req, res) => res.status(200).json({ status: 'UP' }));
 
-    logWithTimestamp('Manual trigger diminta');
-    
-    // Run async without blocking response
-    setImmediate(tandaiPekerjaAbsen);
-    
+// Endpoint untuk mendapatkan status detail dari cron job
+app.get('/status', (req, res) => {
     res.json({
-        success: true,
-        message: 'Manual trigger dimulai',
-        triggeredAt: new Date()
+        service: 'absensi-cron-service',
+        status: cronState.isRunning ? 'running' : 'idle',
+        schedule: cronState.schedule,
+        timezone: "Asia/Jakarta",
+        ...cronState
     });
-};
+});
 
-// Schedule untuk jam 23:00 setiap hari
-const cronJob = cron.schedule('0 23 * * *', tandaiPekerjaAbsen, {
+// Endpoint untuk memicu job secara manual (berguna untuk testing)
+app.post('/trigger', (req, res) => {
+    if (cronState.isRunning) {
+        return res.status(429).json({ message: 'Job sedang berjalan, tidak bisa dipicu manual.' });
+    }
+    log('� Menerima permintaan trigger manual...');
+    // Jalankan fungsi secara async agar tidak memblokir response HTTP
+    setImmediate(tandaiPekerjaAbsen);
+    res.status(202).json({ message: 'Trigger manual diterima, job akan segera dimulai.' });
+});
+
+// =================================================================
+// PENJADWALAN & SHUTDOWN
+// =================================================================
+// Jadwalkan tugas untuk berjalan setiap hari pukul 23:00 (11 malam)
+log(`⏰ Menjadwalkan job untuk berjalan setiap hari pada pukul 23:00 (Asia/Jakarta).`);
+const scheduledJob = cron.schedule(cronState.schedule, tandaiPekerjaAbsen, {
     scheduled: true,
     timezone: "Asia/Jakarta"
 });
 
-// Health check endpoint
-app.get('/health', (req, res) => {
-    res.json({
-        status: 'running',
-        service: 'cron-scheduler',
-        timezone: 'Asia/Jakarta',
-        schedule: '23:00 daily',
-        state: cronState,
-        uptime: process.uptime(),
-        memoryUsage: process.memoryUsage(),
-        nodeVersion: process.version
-    });
-});
+// Fungsi untuk graceful shutdown
+const gracefulShutdown = () => {
+    log('SIGTERM/SIGINT diterima, melakukan graceful shutdown...');
+    scheduledJob.stop();
+    // Beri sedikit waktu untuk proses yang sedang berjalan sebelum keluar
+    setTimeout(() => {
+        log('Shutdown selesai.');
+        process.exit(0);
+    }, 1000);
+};
 
-// Status endpoint with detailed information
-app.get('/status', (req, res) => {
-    res.json({
-        service: 'absensi-cron-service',
-        version: '1.0.0',
-        environment: process.env.NODE_ENV || 'development',
-        timezone: process.env.TZ || 'Asia/Jakarta',
-        cronSchedule: '0 17-23 * * *',
-        cronState: cronState,
-        database: {
-            host: process.env.DB_HOST,
-            database: process.env.DB_NAME,
-            port: process.env.DB_PORT
-        },
-        uptime: {
-            seconds: process.uptime(),
-            readable: new Date(process.uptime() * 1000).toISOString().substr(11, 8)
-        },
-        memory: process.memoryUsage()
-    });
-});
+process.on('SIGTERM', gracefulShutdown);
+process.on('SIGINT', gracefulShutdown);
 
-// Manual trigger endpoint for testing
-app.post('/trigger', triggerManual);
-
-// Logs endpoint
-app.get('/logs', (req, res) => {
-    res.json({
-        lastRun: cronState.lastRun,
-        lastResult: cronState.lastResult,
-        runCount: cronState.runCount,
-        nextScheduledRun: '23:00:00 Asia/Jakarta daily'
-    });
-});
-
-// Graceful shutdown
-process.on('SIGTERM', () => {
-    logWithTimestamp('Menerima SIGTERM, melakukan graceful shutdown...');
-    cronJob.stop();
-    process.exit(0);
-});
-
-process.on('SIGINT', () => {
-    logWithTimestamp('Menerima SIGINT, melakukan graceful shutdown...');
-    cronJob.stop();
-    process.exit(0);
-});
-
-// Start server
+// =================================================================
+// MULAI SERVER
+// =================================================================
 app.listen(PORT, () => {
-    logWithTimestamp(`✅ Cron service dimulai pada port ${PORT}`);
-    logWithTimestamp(`📋 Health check tersedia di: http://localhost:${PORT}/health`);
-    logWithTimestamp(`📊 Status endpoint: http://localhost:${PORT}/status`);
-    logWithTimestamp(`🔧 Manual trigger: POST http://localhost:${PORT}/trigger`);
-    logWithTimestamp(`⏰ Jadwal: setiap hari jam 17:00 - 23:00 WIB per jam nya`);
-    
-    // Set next run info
-    cronState.nextRun = 'Daily at 23:00 Asia/Jakarta';
+    log(`✅ Cron service dimulai pada port ${PORT}`);
+    log(`🩺 Health check: http://localhost:${PORT}/health`);
+    log(`📊 Status: http://localhost:${PORT}/status`);
+    log(`⚡ Manual trigger: POST http://localhost:${PORT}/trigger`);
 });
