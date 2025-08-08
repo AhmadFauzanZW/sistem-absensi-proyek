@@ -8,4 +8,4 @@ This project is licensed under a **Custom Personal/Internal Use License**.
 
 All rights reserved © 2025 Ahmad Fauzan.
 
-For commercial licensing requests, please contact: [email@example.com]
+For commercial licensing requests, please contact: [ahfa201204@gmail.com]
