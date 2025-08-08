@@ -1,3 +1,13 @@
+/*
+ * Sistem Absensi Proyek
+ * Copyright (c) 2025 Ahmad Fauzan
+ * 
+ * Licensed for PERSONAL and INTERNAL USE ONLY.
+ * Redistribution, publication, or COMMERCIAL USE without prior written permission is strictly prohibited.
+ * 
+ * For commercial licensing requests, please contact: [email@example.com]
+ */
+
 // kalender sederhana
 const CalendarView = ({ attendanceData }) => {
   const days = Array.from({ length: 30 }, (_, i) => i + 1); // Simulasi hari dalam sebulan

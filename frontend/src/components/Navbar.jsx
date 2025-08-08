@@ -1,3 +1,13 @@
+/*
+ * Sistem Absensi Proyek
+ * Copyright (c) 2025 Ahmad Fauzan
+ * 
+ * Licensed for PERSONAL and INTERNAL USE ONLY.
+ * Redistribution, publication, or COMMERCIAL USE without prior written permission is strictly prohibited.
+ * 
+ * For commercial licensing requests, please contact: [email@example.com]
+ */
+
 import { useAuth } from '../context/AuthContext';
 import { useClock } from '../hooks/useClock';
 import { useNavigate } from 'react-router-dom';
